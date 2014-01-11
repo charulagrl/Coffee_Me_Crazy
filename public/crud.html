@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Rails Knockout 2 Crud Example</title>
+    
+    <link href="/stylesheets/scaffold.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/bootstrap.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/custom.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/business-casual.css" rel="stylesheet">
+
+    <script src="/javascripts/jquery.js" type="text/javascript"></script>
+    <script src="/javascripts/jquery1.tmpl.js" type="text/javascript"></script>
+    <script src="/javascripts/knockout-3.0.0.js" type="text/javascript"></script>
+    <script src="/javascripts/crud.js" type="text/javascript" type="text/javascript"></script>
+
+
+
+  </head>
+  <body >
+    <div class="brand">
+       D Coffee Shop
+    </div>
+
+    <div class="address-bar">
+      Welcome to the coffee-me-crazy app using Knockout.js and Rails
+    </div>
+ 
+    <div class="container">
+      <div class="row">
+        <div class="box">
+          
+        </div>
+      
+
+
+      <!-- /// 1 -->
+      <script id="errorsTemplate" type="text/html">
+              
+               <span style="color:#fff;" data-bind="text: $data"></span>.&nbsp;
+            
+      </script>
+      
+      <script id="commentsTemplate" type="text/html">
+        <div class="comment" style="background:#fff;">
+          <img src="images/commentIcon.jpg" style="float:left; width:20px; height:20px;" />
+          <p data-bind="text: content" style="font-size:20px;"/></p>
+          
+        </div>
+    
+      </script>
+      <!-- /// 2 -->
+       <script id="indexTemplate" type="text/html">
+        
+        <div class="box" >
+          <div class="col-lg-12" style="width:915px;margin-top:-20px">
+             <h2 class="intro-text text-center" data-bind="text: name"></h2>
+          
+            <img  class="img-responsive img-border imgBean  img-left" src="images/bean.jpg" style="width:250px; height:135px;margin-left:30px">
+            <div class="span6" style="height:120px;">
+            <div style="height:120px; ">
+            <i><p data-bind="text: description"></p></i>
+            </div>
+            <p><span style="font-size:30px;" data-bind="text: likes"></span> tries &nbsp;&nbsp;&nbsp; <img src="images/map.jpg" class="imgSmall"/> <span data-bind="text: place"></span></p> 
+            </div>
+            <div class="row">
+              <div class="span4 actions" style="float:right; ">
+
+                 <button class="btn btn-default" data-bind="click: function() { viewModel.showBean($data) }">View Comments</button>
+                 <button class="btn btn-default" data-bind="click: function() { viewModel.editBean($data) }">Edit Bean</button>
+                <button class="btn btn-danger" data-bind="click: function() { viewModel.destroyBean($data) }">Delete</button>
+
+            </div>
+            </div>
+          </div>
+        </div>
+      </script>
+
+      <!-- /// 5 -->
+      <script id="showTemplate" type="text/html">
+        <div class="beanShow"  >
+          
+          <b><a style="margin-left:10px;margin-top:10px;" data-bind="click: function() { viewModel.indexBean() }">Go Back</a></b>
+          <div style="margin-bottom:10px;" class="row" >
+           
+            <div class="beanDesc" >
+                <div data-bind="click: function() { viewModel.editBean($data) }" name="Click to Edit">
+                  <h2><span data-bind="text: name"></span></h2>
+                  
+                  <div class="">
+                    <div class="row">
+                      
+                        
+                    </div>
+                    
+                  </div>
+                </div>
+            <div class="span4" style="margin-top:10px;">
+                          <b style="margin-left:20px;"><span class="tries" data-bind="text: likes"></span> </b><span> Tries </span>
+                             <button style="margin-left:20px; float:left;margin-top:0px;" class="btn btn-info" data-bind="click: function() { viewModel.tryBean($data) }">Tried It</button>
+                    </div>
+              
+            </div>
+          
+          </div>
+       
+
+      </script>
+
+      <!-- /// 7 -->
+      <script id="editTemplate" type="text/html">
+        <div class="editBean">
+          
+          <form id="form">
+          
+            <div>
+              <label for="coffeebean_name">Coffee Bean</label><br />
+              <input type="text" id="coffeebean_name" data-bind="value: name" />
+
+            </div>
+
+            <div>
+              <label for="coffeebean_description">Description</label><br />
+              <textarea id="coffeebean_description" data-bind="value: description" ></textarea>
+            </div>
+            <div>
+              <label for="coffeebean_place">Location</label><br />
+              <input type="text" id="coffeebean_place" data-bind="value: place" />
+            </div>
+          </form>
+          
+
+          <div>
+            <button class="btn btn-success" data-bind="click: function() { viewModel.updateBean($data) }">Update
+            </button>
+            <button class="btn btn-default" data-bind="click: function() { viewModel.indexBean() }">Cancel</button>
+            
+          </div>
+        </div>
+         
+      </script>
+
+      <!-- /// 8 -->
+      <script id="newTemplate" type="text/html">
+            <div class="newBean beanHolder">
+            <center>
+          <form id="form" style="margin-top:10px;">
+          
+            <div>
+              <label>Add A New Bean Here</label><br/>    
+              <input type="text" id="post_title" data-bind="value: name" placeholder="Name of Coffee"/>
+
+            </div>
+
+            <div>
+              
+              <textarea id="post_body" data-bind="value: description" placeholder="Write Description.."></textarea>
+            </div>
+            <div>
+              
+              <input type="text" id="post_country" data-bind="value: place" placeholder="Location" />
+            </div>
+          </form>
+          <button class="btn btn-info" data-bind="click: function() { viewModel.createBean($data) }">Create
+            </button>
+            <button class="btn" data-bind="click: function() { viewModel.indexBean() }">Cancel</button>
+          </center>
+          <div>
+            
+          </div>
+        </div>
+      </script>
+
+
+      <!-- /// 9 -->
+      
+      <div  data-bind='template: {name: "errorsTemplate", foreach: errors}'></div>
+      <!-- /// 10 -->
+      <div class="mesg" data-bind='visible: flash'>
+          <p data-bind='text: flash'></p>
+      </div>
+      <!-- /// 11 -->
+      <div data-bind='visible: currentPage() == "index"'>
+       <button class="btn btn-success" data-bind="click: function() {viewModel.newAction()} ">Add New Coffee Bean</button>
+     <input style="float:right; margin-top:20px;" type="text" class="xxx" data-bind="value :filter, valueUpdate: 'afterkeydown'" placeholder="Search..."/>
+        <br /><br/>
+        <br/>
+        
+        <div style="">
+        <table>
+          <div class="">
+
+         <tbody data-bind='template: {name: "indexTemplate", foreach: filteredItems}'></tbody>
+         </div>
+     
+          
+
+       </table>
+       </div>
+     </div>
+      
+
+      <!-- /// 12 -->
+      <div data-bind='visible: currentPage() == "show"'>
+          <div class="row container">
+              <div class="span4">
+                <div data-bind='template: {name: "showTemplate",  data: tempItem, templateOptions: { selectedItem: selectedItem}}'></div>
+              </div>
+              <div class="span7">
+                    <div class="commentHolder">
+                        <div class="comment">
+                           <form id="form" >
+                            <div>
+                             
+                            <input type="text" class="span6" data-bind="value: newcontent"  placeholder=" Comment Here .." />
+                               
+                             
+                               <button class="btn btn-success" data-bind="visible: true, click: function() { viewModel.addComment() }"> Comment </button>
+                            </div>
+                             </form>
+                        </div>
+                    </div>
+                    <div class="commentHolder" data-bind='template: {name: "commentsTemplate", foreach: comments}'>
+                    </div>
+              </div>        
+          </div>
+      </div>
+      
+       
+      <!-- /// 13 -->
+      <div data-bind='visible: currentPage() == "edit"'>
+  
+              <div data-bind='template: {name: "editTemplate", data: tempItem, templateOptions: { selectedItem: selectedItem}}'></div>    
+        
+      </div>
+
+      <!-- /// 14 -->
+      <div data-bind='visible: currentPage() == "new"'>
+        <div data-bind='template: {name: "newTemplate", data: tempItem}'></div>
+      </div>
+    </div>  
+
+  </div>
+  </body>
+
+</html>

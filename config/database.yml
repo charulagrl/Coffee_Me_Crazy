@@ -1,0 +1,27 @@
+development:
+    adapter: postgresql
+    encoding: utf8
+    database: dfq286ai8f2jbd
+    username: obepnieqttjbvp
+    password: WIJ6THg1a8X2ceaVn5BNEOot9O
+    host: ec2-54-197-251-18.compute-1.amazonaws.com
+    port: 5432
+
+test:
+    adapter: postgresql
+    encoding: utf8
+    database: dfq286ai8f2jbd
+    username: obepnieqttjbvp
+    password: WIJ6THg1a8X2ceaVn5BNEOot9O
+    host: ec2-54-197-251-18.compute-1.amazonaws.com
+    port: 5432
+
+production:
+    adapter: postgresql
+    encoding: utf8
+    database: dfq286ai8f2jbd
+    username: obepnieqttjbvp
+    password: WIJ6THg1a8X2ceaVn5BNEOot9O
+    host: ec2-54-197-251-18.compute-1.amazonaws.com
+    port: 5432
+
