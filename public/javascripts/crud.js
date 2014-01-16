@@ -1,26 +1,27 @@
 var viewModel = {
   flash: ko.observable(),
   shownOnce: ko.observable(),
+  coffeeName: ko.observable(),
+  coffeeDescription: ko.observable(),
+  coffeePlace: ko.observable(),
   currentPage: ko.observable(),
   errors: ko.observableArray(),
   items: ko.observableArray(),
   comments: ko.observableArray(),
   selectedItem: ko.observable(),
   newcontent: ko.observable(),
- beanid: ko.observable(0),
+  id_bean: ko.observable(0),
   filter: ko.observable(""),
-  tempName: ko.observable(),
-  tempDescription: ko.observable(),
-  tempPlace: ko.observable(),
+  
 
-  tempItem: {
+  ItemDetails: {
+    updated_at: ko.observable(),
+    created_at: ko.observable()
     id: ko.observable(),
     name: ko.observable(),
     description: ko.observable(),
     place: ko.observable(),
     likes: ko.observable(),
-    updated_at: ko.observable(),
-    created_at: ko.observable()
   },
 
   newcomment: {
@@ -28,7 +29,7 @@ var viewModel = {
     content: ""
   },
 
-  newBean: {
+  newCoffeeBean: {
     name: "",
     description: "",
     place: "",
@@ -46,35 +47,35 @@ var viewModel = {
     }
   },
   
-  clearTempItem: function() {
-    this.tempItem.id('');
-    this.tempItem.name('');
-    this.tempItem.description('');
-    this.tempItem.place('');
-    this.tempItem.likes('');
-    this.tempItem.updated_at('');
-    this.tempItem.created_at('');
-  },
-
-  clearComments: function() {
-    this.comments('');
+  deleteItemDetails: function() {
+    this.ItemDetails.id('');
+    this.ItemDetails.name('');
+    this.ItemDetails.description('');
+    this.ItemDetails.place('');
+    this.ItemDetails.likes('');
+    this.ItemDetails.updated_at('');
+    this.ItemDetails.created_at('');
   },
   
-  prepareTempItem : function() {
-    this.tempItem.id(ko.utils.unwrapObservable(this.selectedItem().id));
-    this.tempItem.name(ko.utils.unwrapObservable(this.selectedItem().name));
-    this.tempItem.description(ko.utils.unwrapObservable(this.selectedItem().description));
-    this.tempItem.place(ko.utils.unwrapObservable(this.selectedItem().place));
-    this.tempItem.likes(ko.utils.unwrapObservable(this.selectedItem().likes));
-    this.tempItem.updated_at(ko.utils.unwrapObservable(this.selectedItem().updated_at));
-    this.tempItem.created_at(ko.utils.unwrapObservable(this.selectedItem().created_at));
+  prepareItemDetails : function() {
+    this.ItemDetails.id(ko.utils.unwrapObservable(this.selectedItem().id));
+    this.ItemDetails.name(ko.utils.unwrapObservable(this.selectedItem().name));
+    this.ItemDetails.description(ko.utils.unwrapObservable(this.selectedItem().description));
+    this.ItemDetails.place(ko.utils.unwrapObservable(this.selectedItem().place));
+    this.ItemDetails.likes(ko.utils.unwrapObservable(this.selectedItem().likes));
+    this.ItemDetails.updated_at(ko.utils.unwrapObservable(this.selectedItem().updated_at));
+    this.ItemDetails.created_at(ko.utils.unwrapObservable(this.selectedItem().created_at));
+  },
+
+  deleteComments: function() {
+    this.comments('');
   },
   
   indexBean: function() {
     this.checkFlash();
     this.errors([]);
     this.flash('');
-    this.clearComments();
+    this.deleteComments();
     $.getJSON('/coffeebeans.json', function(data) {
       viewModel.items(data);
       viewModel.currentPage('index');
@@ -82,42 +83,67 @@ var viewModel = {
     });
   },
 
-  showBean: function(itemToShow) {
+  displayBean: function(itemToShow) {
     this.checkFlash();
     this.errors([]);
     this.newcontent('');
     this.selectedItem(itemToShow);
-    this.prepareTempItem();
+    this.prepareItemDetails();
     var url = '/coffeebeans/' + itemToShow.id + '/comments.json';
     $.getJSON(url, function(data) {
       viewModel.comments(data);
     });
     this.currentPage('show');
     this.shownOnce(true);
-    this.beanid(itemToShow.id);
-  },
-
-
-  editBean: function(itemToEdit) {
-    this.checkFlash();
-    this.selectedItem(itemToEdit);
-    this.prepareTempItem();
-    this.currentPage('edit');
-    this.shownOnce(true);
+    this.id_bean(itemToShow.id);
   },
 
   newAction: function() {
     this.checkFlash();
     this.currentPage('new');
-    this.clearTempItem();
+    this.deleteItemDetails();
     this.shownOnce(true);
   },
 
-  addBean: function() {
-    this.newBean.name = this.tempName();
-    this.newBean.description = this.tempDescription();
-    this.newBean.place = this.tempPlace();
-    var json_data = ko.toJS(this.newBean);
+  changeBean: function(itemToEdit) {
+    this.checkFlash();
+    this.selectedItem(itemToEdit);
+    this.prepareItemDetails();
+    this.currentPage('edit');
+    this.shownOnce(true);
+  },
+
+  addComment: function() {
+    
+    this.newcomment.coffeebean_id = this.id_bean();
+    this.newcomment.content = this.newcontent();
+    var json_data = ko.toJS(this.newcomment);
+    
+    $.ajax({
+      type: 'POST',
+      url: '/coffeebeans/' + this.id_bean() + '/comments.json',
+      data: {
+        // /// 17
+        comment: json_data
+      },
+      dataType: "json",
+      success: function(createdItem) {
+        viewModel.errors([]);
+      
+        viewModel.comments.push(viewModel.newcomment);
+        viewModel.newcontent('');
+      },
+      error: function(msg) {
+        viewModel.errors(JSON.parse(msg.responseText));
+      }
+    });
+  },
+
+  addNewBean: function() {
+    this.newCoffeeBean.name = this.coffeeName();
+    this.newCoffeeBean.description = this.coffeeDescription();
+    this.newCoffeeBean.place = this.coffeePlace();
+    var json_data = ko.toJS(this.newCoffeeBean);
     
     $.ajax({
       type: 'POST',
@@ -130,36 +156,10 @@ var viewModel = {
       success: function(createdItem) {
         viewModel.errors([]);
       
-        viewModel.items.push(viewModel.newBean);
-        viewModel.tempName('');
-        viewModel.tempDescription('');
-        viewModel.tempPlace('');
-      },
-      error: function(msg) {
-        viewModel.errors(JSON.parse(msg.responseText));
-      }
-    });
-  },
-
-  addComment: function() {
-    
-    this.newcomment.coffeebean_id = this.beanid();
-    this.newcomment.content = this.newcontent();
-    var json_data = ko.toJS(this.newcomment);
-    
-    $.ajax({
-      type: 'POST',
-      url: '/coffeebeans/' + this.beanid() + '/comments.json',
-      data: {
-        // /// 17
-        comment: json_data
-      },
-      dataType: "json",
-      success: function(createdItem) {
-        viewModel.errors([]);
-      
-        viewModel.comments.push(viewModel.newcomment);
-        viewModel.newcontent('');
+        viewModel.items.push(viewModel.newCoffeeBean);
+        viewModel.coffeeName('');
+        viewModel.coffeeDescription('');
+        viewModel.coffeePlace('');
       },
       error: function(msg) {
         viewModel.errors(JSON.parse(msg.responseText));
@@ -180,7 +180,7 @@ var viewModel = {
       success: function(createdItem) {
         viewModel.errors([]);
         viewModel.setFlash('Post successfully created.');
-        viewModel.showBean(createdItem);
+        viewModel.displayBean(createdItem);
       },
       error: function(msg) {
         viewModel.errors(JSON.parse(msg.responseText));
@@ -232,7 +232,7 @@ var viewModel = {
       success: function(updatedItem) {
         viewModel.errors([]);
         viewModel.setFlash('Post successfully updated.');
-        viewModel.showBean(updatedItem);
+        viewModel.displayBean(updatedItem);
       },
       error: function(msg) {
         viewModel.errors(JSON.parse(msg.responseText));
@@ -240,7 +240,7 @@ var viewModel = {
     });
   },
   // /// 19
-  destroyBean: function(itemToDestroy) {
+  deleteBean: function(itemToDestroy) {
     if (confirm('Are you sure?')) {
       $.ajax({
         type: "DELETE",
@@ -282,5 +282,5 @@ viewModel.filteredItems = ko.computed(function() {
 $(document).ready(function() {
   ko.applyBindings(viewModel);
   viewModel.indexBean();
-  viewModel.clearTempItem();
+  viewModel.deleteItemDetails();
 });
