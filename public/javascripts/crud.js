@@ -1,19 +1,18 @@
 var viewModel = {
-  flash: ko.observable(),
-  shownOnce: ko.observable(),
-  coffeeName: ko.observable(),
-  coffeeDescription: ko.observable(),
-  coffeePlace: ko.observable(),
-  currentPage: ko.observable(),
-  errors: ko.observableArray(),
-  items: ko.observableArray(),
-  comments: ko.observableArray(),
-  selectedItem: ko.observable(),
-  newcontent: ko.observable(),
-  id_bean: ko.observable(0),
-  filter: ko.observable(""),
-  
 
+  shownOnce: ko.observable(),
+  setFlash: function(flash) {
+    this.flash(flash);
+    this.shownOnce(false);
+  },
+
+  flash: ko.observable(),
+  checkFlash: function() {
+    if (this.shownOnce() == true) {
+      this.flash('');
+    }
+  },
+  
   ItemDetails: {
     updated_at: ko.observable(),
     created_at: ko.observable()
@@ -24,29 +23,6 @@ var viewModel = {
     likes: ko.observable(),
   },
 
-  newcomment: {
-    coffeebean_id: "",
-    content: ""
-  },
-
-  newCoffeeBean: {
-    name: "",
-    description: "",
-    place: "",
-    likes: 0
-  },
-
-  setFlash: function(flash) {
-    this.flash(flash);
-    this.shownOnce(false);
-  },
-
-  checkFlash: function() {
-    if (this.shownOnce() == true) {
-      this.flash('');
-    }
-  },
-  
   deleteItemDetails: function() {
     this.ItemDetails.id('');
     this.ItemDetails.name('');
@@ -67,10 +43,13 @@ var viewModel = {
     this.ItemDetails.created_at(ko.utils.unwrapObservable(this.selectedItem().created_at));
   },
 
+  comments: ko.observableArray(),
   deleteComments: function() {
     this.comments('');
   },
-  
+  items: ko.observableArray(),
+  errors: ko.observableArray(),
+  currentPage: ko.observable(),
   indexBean: function() {
     this.checkFlash();
     this.errors([]);
@@ -83,6 +62,8 @@ var viewModel = {
     });
   },
 
+  id_bean: ko.observable(0),
+  newcontent: ko.observable(),
   displayBean: function(itemToShow) {
     this.checkFlash();
     this.errors([]);
@@ -105,12 +86,18 @@ var viewModel = {
     this.shownOnce(true);
   },
 
+  selectedItem: ko.observable(),
   changeBean: function(itemToEdit) {
     this.checkFlash();
     this.selectedItem(itemToEdit);
     this.prepareItemDetails();
     this.currentPage('edit');
     this.shownOnce(true);
+  },
+
+  newcomment: {
+    coffeebean_id: "",
+    content: ""
   },
 
   addComment: function() {
@@ -139,6 +126,16 @@ var viewModel = {
     });
   },
 
+  newCoffeeBean: {
+    name: "",
+    description: "",
+    place: "",
+    likes: 0
+  },
+
+  coffeePlace: ko.observable(),
+  coffeeDescription: ko.observable(),
+  coffeeName: ko.observable(),
   addNewBean: function() {
     this.newCoffeeBean.name = this.coffeeName();
     this.newCoffeeBean.description = this.coffeeDescription();
@@ -266,6 +263,7 @@ ko.utils.stringStartsWith = function (string, startsWith) {
   return string.substring(0, startsWith.length) === startsWith;
 };
 
+filter: ko.observable(""),
 viewModel.filteredItems = ko.computed(function() {
     var filter = this.filter().toLowerCase();
     if (!filter) {
